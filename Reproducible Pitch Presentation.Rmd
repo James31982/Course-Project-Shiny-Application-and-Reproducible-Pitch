@@ -1,0 +1,83 @@
+---
+title: "Decision Tree Modeling: Loan Payments Data"
+author: "Jaime Paz"
+date: "January 22, 2019"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Introduction
+
+The present documentation contains information about a "Decision Tree Modeling" application using loan payments data, as part of assessment of the Developing Data Products Module of the Data Science Specialization.
+
+The complete dataset and description can be found in Kaggle:
+
+(https://www.kaggle.com/zhijinzhai/loandata/home)
+
+The developed application can be found in the next link:
+
+(https://james31982.shinyapps.io/DevDataProducts_PeerGradedAssig/)
+
+## Data Description
+
+The description of the used dataset and its variables is as follows:
+
+```{r, echo = FALSE, fig.align= 'center', fig.cap = 'My Awesome figure', message=FALSE}
+library(lubridate)
+loan_data <- read.csv("https://raw.githubusercontent.com/James31982/test-repo/master/Loan%20payments%20data.csv", header = TRUE)
+loan_data$paid_off_time <-  mdy_hm(loan_data$paid_off_time)
+loan_data$paid_off <-  ifelse(is.na(loan_data$paid_off_time),0,1)
+loan_data$past_due_days<- ifelse(is.na(loan_data$past_due_days),0,loan_data$past_due_days)
+vars2 <- c("loan_status","paid_off", "past_due_days")
+str(loan_data[vars2])
+
+```
+
+
+Variables:
+
+**loan_status:** Whether a loan is paid off, in collection, new customer yet to payoff, or paid off after the collection efforts
+**paid_off:** Whether the customer paid on time (0 yes, 1 no)
+**past_due_days:**  Whether the payment has been past due (0 no, 1 yes)
+
+
+##Application Description
+
+The application is build using Shiny package and the source code is in 2 files:
+
+- `ui.R`
+
+- `server.R`
+
+Both files can be found here: (https://github.com/James31982/Course-Project-Shiny-Application-and-Reproducible-Pitch)
+
+
+
+## Application Description
+
+The application allows the user to choose between two models for building a decision tree algorithm that classifies the loan payment status. Model 1 uses "Past Due Days" and Model 2 "Paid off" and "Past Due Days" as features. In addition, the user can also manipulate the amount of percentage of the training set for model, and the rest will be used for the test set. Finally, the accuracy of the two models is presented to the user and the decision tree plot should look like this:
+
+```{r, echo = FALSE, fig.align= 'center', fig.cap = 'My Awesome figure', message=FALSE, warning=FALSE, fig.width=3, fig.height=3}
+
+library(rpart)
+library(caTools)
+library(rpart.plot)
+
+set.seed(123)
+split = sample.split(loan_data$loan_status, SplitRatio = 0.75)
+training_set = subset(loan_data, split == TRUE)
+test_set = subset(loan_data, split == FALSE)
+train_tree2<- training_set[vars2]
+test_tree2<- test_set[vars2]
+rpart_tree2 <- rpart(loan_status ~., data = train_tree2)
+rpart.plot(rpart_tree2)                
+                
+
+```
+
+
+
+
